@@ -1,0 +1,22 @@
+cat > .gitignore << 'EOF'
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+.env
+.env.*
+
+db/*.db
+db/*.db-shm
+db/*.db-wal
+
+node_modules/
+dist/
+build/
+
+.vscode/
+.DS_Store
+Thumbs.db
+EOF

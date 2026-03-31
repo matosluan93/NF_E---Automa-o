@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sistema NF-e — Stefanini</title>
+  <meta
+    name="description"
+    content="Interface de emissão de NF-e com pré-visualização DANFE fiel ao modelo da empresa."
+  />
+  <meta name="theme-color" content="#0d1017" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&family=Syne:wght@700;800&display=swap"
+    rel="stylesheet"
+  />
+
+  <link rel="stylesheet" href="./assets/main.css" />
+</head>
+<body>
+  <a href="#view-emitir" class="skip-link">Pular para o conteúdo principal</a>
+
+  <header class="topbar" role="banner">
+    <div class="brand" aria-label="Identidade do sistema">
+      <img
+        src="./assets/img/logo-stefanini-4k.png"
+        alt="Stefanini Group"
+        class="brand-logo"
+      />
+      <div class="brand-copy">
+        <strong>Sistema NF-e</strong>
+        <span>Painel de emissão, histórico e DANFE</span>
+      </div>
+    </div>
+
+    <nav class="tabs" aria-label="Navegação principal">
+      <button
+        type="button"
+        class="tab active"
+        data-view="emitir"
+        aria-controls="view-emitir"
+        aria-current="page"
+      >
+        Emitir NF
+      </button>
+      <button
+        type="button"
+        class="tab"
+        data-view="notas"
+        aria-controls="view-notas"
+      >
+        Notas emitidas
+      </button>
+      <button
+        type="button"
+        class="tab"
+        data-view="dashboard"
+        aria-controls="view-dashboard"
+      >
+        Dashboard
+      </button>
+    </nav>
+
+    <div class="api-badge" role="status" aria-live="polite" aria-atomic="true">
+      <span class="api-dot" id="api-dot" aria-hidden="true"></span>
+      <span id="api-status">Conectando…</span>
+    </div>
+  </header>
+
+  <main class="layout" id="app-content">
+    <section
+      class="view view-active"
+      id="view-emitir"
+      aria-labelledby="titulo-emitir"
+    >
+      <aside class="panel form-panel">
+        <div class="panel-head">
+          <h1 id="titulo-emitir">Nova Nota Fiscal</h1>
+          <p>Preencha os dados, confira o DANFE e emita a nota.</p>
+        </div>
+
+        <form class="panel-body" id="nf-form" novalidate>
+          <section class="form-section" aria-labelledby="sec-dados-nota">
+            <div class="section-title" id="sec-dados-nota">Dados da nota</div>
+
+            <div class="grid g2">
+              <label class="field">
+                <span>Nº da nota</span>
+                <input
+                  type="text"
+                  id="f-numero"
+                  readonly
+                  aria-readonly="true"
+                />
+              </label>
+
+              <label class="field">
+                <span>Série</span>
+                <select id="f-serie">
+                  <option value="1">1</option>
+                  <option value="2">2</option>
+                  <option value="3">3</option>
+                </select>
+              </label>
+            </div>
+
+            <div class="grid g2">
+              <label class="field">
+                <span>Data de emissão</span>
+                <input type="date" id="f-data" />
+              </label>
+
+              <label class="field">
+                <span>Hora</span>
+                <input type="time" id="f-hora" />
+              </label>
+            </div>
+
+            <label class="field">
+              <span>Natureza da operação</span>
+              <input
+                type="text"
+                id="f-natureza"
+                value="VENDA DE MERCADORIA"
+              />
+            </label>
+          </section>
+
+          <section class="form-section" aria-labelledby="sec-destinatario">
+            <div class="section-title" id="sec-destinatario">
+              Destinatário / Remetente
+            </div>
+
+            <label class="field">
+              <span>Nome / Razão social <em>*</em></span>
+              <input
+                type="text"
+                id="f-dest-nome"
+                placeholder="Informe o destinatário"
+                autocomplete="name"
+              />
+            </label>
+
+            <div class="grid g2">
+              <label class="field">
+                <span>CPF / CNPJ</span>
+                <input
+                  type="text"
+                  id="f-dest-cpf"
+                  placeholder="000.000.000-00"
+                  autocomplete="off"
+                />
+              </label>
+
+              <label class="field">
+                <span>Inscrição estadual</span>
+                <input
+                  type="text"
+                  id="f-dest-ie"
+                  placeholder="ISENTO"
+                  autocomplete="off"
+                />
+              </label>
+            </div>
+
+            <label class="field">
+              <span>Endereço</span>
+              <input
+                type="text"
+                id="f-dest-end"
+                placeholder="Rua, número, complemento"
+                autocomplete="street-address"
+              />
+            </label>
+
+            <div class="grid g2">
+              <label class="field">
+                <span>Bairro</span>
+                <input type="text" id="f-dest-bairro" autocomplete="address-level3" />
+              </label>
+
+              <label class="field">
+                <span>Município</span>
+                <input type="text" id="f-dest-mun" autocomplete="address-level2" />
+              </label>
+            </div>
+
+            <div class="grid g3">
+              <label class="field">
+                <span>UF</span>
+                <select id="f-dest-uf" autocomplete="address-level1">
+                  <option>SP</option>
+                  <option>RJ</option>
+                  <option>MG</option>
+                  <option>BA</option>
+                  <option>PR</option>
+                  <option>SC</option>
+                  <option>RS</option>
+                  <option>GO</option>
+                  <option>DF</option>
+                  <option>ES</option>
+                  <option>CE</option>
+                  <option>PE</option>
+                  <option>PA</option>
+                  <option>AM</option>
+                  <option>MS</option>
+                  <option>MT</option>
+                  <option>RO</option>
+                  <option>AC</option>
+                  <option>AP</option>
+                  <option>RR</option>
+                  <option>TO</option>
+                  <option>MA</option>
+                  <option>PI</option>
+                  <option>RN</option>
+                  <option>PB</option>
+                  <option>AL</option>
+                  <option>SE</option>
+                </select>
+              </label>
+
+              <label class="field">
+                <span>CEP</span>
+                <input
+                  type="text"
+                  id="f-dest-cep"
+                  placeholder="00000-000"
+                  autocomplete="postal-code"
+                />
+              </label>
+
+              <label class="field">
+                <span>Fone</span>
+                <input type="text" id="f-dest-fone" autocomplete="tel" />
+              </label>
+            </div>
+          </section>
+
+          <section class="form-section" aria-labelledby="sec-itens">
+            <div class="section-title" id="sec-itens">Itens da nota</div>
+
+            <div class="product-search">
+              <span class="search-icon" aria-hidden="true">⌕</span>
+              <input
+                type="text"
+                id="prod-search"
+                placeholder="Buscar por código, nome ou descrição do produto…"
+                autocomplete="off"
+                aria-label="Buscar produto"
+                aria-controls="prod-dropdown"
+                aria-expanded="false"
+              />
+              <div
+                class="dropdown"
+                id="prod-dropdown"
+                role="listbox"
+                aria-label="Resultados da busca de produtos"
+              ></div>
+            </div>
+
+            <div class="table-wrap compact">
+              <table class="table items-table">
+                <thead>
+                  <tr>
+                    <th scope="col">Código</th>
+                    <th scope="col">Descrição</th>
+                    <th scope="col">Qtd</th>
+                    <th scope="col">V. Unit</th>
+                    <th scope="col">Total</th>
+                    <th scope="col" aria-label="Ações"></th>
+                  </tr>
+                </thead>
+                <tbody id="items-body">
+                  <tr class="empty-row">
+                    <td colspan="6">Nenhum produto adicionado</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="stats" aria-label="Resumo dos itens da nota">
+              <article class="stat-card">
+                <span>Itens</span>
+                <strong id="tot-itens">0</strong>
+              </article>
+
+              <article class="stat-card">
+                <span>ICMS</span>
+                <strong id="tot-icms">R$ 0,00</strong>
+              </article>
+
+              <article class="stat-card accent">
+                <span>Total</span>
+                <strong id="tot-total">R$ 0,00</strong>
+              </article>
+            </div>
+          </section>
+
+          <section class="form-section" aria-labelledby="sec-info">
+            <div class="section-title" id="sec-info">
+              Informações complementares
+            </div>
+
+            <label class="field">
+              <span>Texto da observação</span>
+              <textarea id="f-info" rows="3"></textarea>
+            </label>
+          </section>
+        </form>
+
+        <div class="panel-foot">
+          <button
+            type="button"
+            class="btn btn-secondary"
+            id="btn-preview"
+          >
+            Gerar pré-visualização
+          </button>
+
+          <button
+            type="button"
+            class="btn btn-primary"
+            id="btn-emitir"
+          >
+            Emitir nota
+          </button>
+        </div>
+      </aside>
+
+      <section class="panel preview-panel" aria-labelledby="titulo-preview">
+        <div class="preview-head">
+          <div>
+            <h2 id="titulo-preview">Pré-visualização DANFE</h2>
+            <p>
+              O layout foi ajustado para manter o visual fiel ao documento usado
+              pela empresa.
+            </p>
+          </div>
+
+          <div class="preview-actions">
+            <button
+              type="button"
+              class="btn btn-secondary btn-sm"
+              id="btn-refresh-preview"
+            >
+              Atualizar
+            </button>
+
+            <button
+              type="button"
+              class="btn btn-secondary btn-sm"
+              onclick="window.print()"
+            >
+              Imprimir / PDF
+            </button>
+          </div>
+        </div>
+
+        <div class="preview-scroll">
+          <div class="preview-canvas" id="danfe-output">
+            <div class="empty-preview">
+              <div class="empty-preview-icon" aria-hidden="true">🧾</div>
+              <strong>Preencha os dados da nota</strong>
+              <span>e clique em “Gerar pré-visualização”.</span>
+            </div>
+          </div>
+        </div>
+      </section>
+    </section>
+
+    <section class="view" id="view-notas" aria-labelledby="titulo-notas">
+      <div class="content-page">
+        <div class="page-head">
+          <div>
+            <h2 id="titulo-notas">Notas emitidas</h2>
+            <p>Consulta de histórico, visualização e cancelamento.</p>
+          </div>
+
+          <div class="page-actions">
+            <label class="search-inline" aria-label="Buscar notas emitidas">
+              <span aria-hidden="true">⌕</span>
+              <input
+                type="text"
+                id="notas-search"
+                placeholder="Buscar por destinatário, CPF/CNPJ ou número"
+              />
+            </label>
+
+            <button
+              type="button"
+              class="btn btn-secondary btn-sm"
+              id="btn-reload-notas"
+            >
+              Atualizar
+            </button>
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <table class="table">
+            <thead>
+              <tr>
+                <th scope="col">Nº</th>
+                <th scope="col">Série</th>
+                <th scope="col">Data</th>
+                <th scope="col">Destinatário</th>
+                <th scope="col">Total</th>
+                <th scope="col">ICMS</th>
+                <th scope="col">Status</th>
+                <th scope="col">Ações</th>
+              </tr>
+            </thead>
+            <tbody id="notas-body">
+              <tr class="empty-row">
+                <td colspan="8">Carregando notas…</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section class="view" id="view-dashboard" aria-labelledby="titulo-dashboard">
+      <div class="content-page">
+        <div class="page-head">
+          <div>
+            <h2 id="titulo-dashboard">Dashboard</h2>
+            <p>Visão rápida de emissão e movimentação de notas.</p>
+          </div>
+        </div>
+
+        <div class="kpi-grid">
+          <article class="kpi-card">
+            <span>Notas emitidas</span>
+            <strong id="kpi-emitidas">—</strong>
+          </article>
+
+          <article class="kpi-card">
+            <span>Faturamento total</span>
+            <strong id="kpi-fat">—</strong>
+          </article>
+
+          <article class="kpi-card">
+            <span>Notas canceladas</span>
+            <strong id="kpi-cancel">—</strong>
+          </article>
+
+          <article class="kpi-card">
+            <span>Sequência</span>
+            <strong id="kpi-serie">—</strong>
+          </article>
+        </div>
+
+        <div class="table-wrap">
+          <table class="table">
+            <thead>
+              <tr>
+                <th scope="col">Nº</th>
+                <th scope="col">Data</th>
+                <th scope="col">Destinatário</th>
+                <th scope="col">Total</th>
+                <th scope="col">Status</th>
+              </tr>
+            </thead>
+            <tbody id="dash-body">
+              <tr class="empty-row">
+                <td colspan="5">Carregando dashboard…</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div
+    class="modal-overlay"
+    id="modal-nota"
+    aria-hidden="true"
+  >
+    <div
+      class="modal modal-danfe"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="modal-title"
+    >
+      <div class="modal-head">
+        <div>
+          <h3 id="modal-title">Nota Fiscal</h3>
+          <p>Visualização fiel ao DANFE gerado.</p>
+        </div>
+
+        <div class="modal-actions">
+          <button
+            type="button"
+            class="btn btn-secondary btn-sm"
+            onclick="window.print()"
+          >
+            Imprimir
+          </button>
+
+          <button
+            type="button"
+            class="btn btn-danger btn-sm"
+            id="btn-modal-cancel"
+          >
+            Cancelar NF
+          </button>
+
+          <button
+            type="button"
+            class="btn btn-secondary btn-sm"
+            id="btn-modal-close"
+          >
+            Fechar
+          </button>
+        </div>
+      </div>
+
+      <div class="modal-body">
+        <div class="modal-danfe-scroll" id="modal-body"></div>
+      </div>
+    </div>
+  </div>
+
+  <div
+    class="loading-overlay"
+    id="loading"
+    aria-hidden="true"
+  >
+    <div class="spinner" aria-hidden="true"></div>
+  </div>
+
+  <div
+    class="toast-container"
+    id="toast-container"
+    aria-live="polite"
+    aria-atomic="true"
+  ></div>
+
+  <script src="./config.js"></script>
+  <script src="./assets/main.js"></script>
+</body>
+</html>
