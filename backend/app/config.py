@@ -7,7 +7,9 @@ from pathlib import Path
 class Config:
     APP_NAME = os.getenv("APP_NAME", "Sistema NF-e Stefanini")
     DEBUG = os.getenv("DEBUG", "0").lower() in {"1", "true", "yes", "on"}
-    HOST = os.getenv("HOST", "0.0.0.0")
+    HOST = os.getenv("HOST", "127.0.0.1")
+    NFE_ACCESS_PASSWORD = os.getenv("NFE_ACCESS_PASSWORD", "")
+    NFE_PUBLIC_ORIGIN = os.getenv("NFE_PUBLIC_ORIGIN", "").rstrip("/")
     PORT = int(os.getenv("PORT", "5000"))
 
     PROJECT_ROOT = Path(__file__).resolve().parents[2]

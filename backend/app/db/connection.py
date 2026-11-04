@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import sqlite3
+from contextlib import closing
 from pathlib import Path
 
 from flask import current_app, g
@@ -30,7 +31,7 @@ def init_db() -> None:
     schema_path = Path(__file__).with_name("schema.sql")
     db_path.parent.mkdir(parents=True, exist_ok=True)
     sql = schema_path.read_text(encoding="utf-8")
-    with sqlite3.connect(db_path) as conn:
+    with closing(sqlite3.connect(db_path)) as conn, conn:
         conn.executescript(sql)
         conn.execute(
             "INSERT OR IGNORE INTO nf_sequences(serie, ultimo_numero, updated_at) VALUES (?, ?, CURRENT_TIMESTAMP)",

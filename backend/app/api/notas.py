@@ -17,8 +17,8 @@ def next_number(serie: str):
 def notes_list():
     q = request.args.get("q", "").strip()
     status = request.args.get("status", "").strip()
-    limit = min(int(request.args.get("limit", 50)), 200)
-    offset = int(request.args.get("offset", 0))
+    limit = min(max(request.args.get("limit", 50, type=int), 1), 200)
+    offset = max(request.args.get("offset", 0, type=int), 0)
     return ok(list_notes(q=q, status=status, limit=limit, offset=offset))
 
 
