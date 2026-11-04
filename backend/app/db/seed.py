@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import logging
 import sqlite3
+from contextlib import closing
 from pathlib import Path
 
 from flask import current_app
@@ -20,7 +21,7 @@ def seed_products_if_needed() -> None:
         log.warning("Catálogo não encontrado em %s. Seed ignorado.", catalog_path)
         return
 
-    with sqlite3.connect(db_path) as conn:
+    with closing(sqlite3.connect(db_path)) as conn, conn:
         current_total = conn.execute("SELECT COUNT(*) FROM produtos").fetchone()[0]
         if current_total > 0:
             return
